@@ -35,9 +35,7 @@ public class MarkedContentFlattener implements Consumer<PDMarkedContent> {
                 .getContents()
                 .parallelStream()
                 .forEachOrdered(c -> {
-                    if (c instanceof PDMarkedContent) {
-                        final PDMarkedContent content = (PDMarkedContent) c;
-
+                    if (c instanceof final PDMarkedContent content) {
                         containerRef.add(content);
                         this.accept(content);
                     }
