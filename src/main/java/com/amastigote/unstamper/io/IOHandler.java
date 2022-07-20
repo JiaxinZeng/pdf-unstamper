@@ -7,8 +7,8 @@
  */
 package com.amastigote.unstamper.io;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class IOHandler {
 
     public static Iterator<File> getFiles(
             @NotNull String idn,
-            @NotNull boolean recursive) {
+            boolean recursive) {
         File dirI = new File(idn);
         if (dirI.exists() && dirI.isDirectory()) {
             return FileUtils.iterateFiles(dirI, new String[]{"pdf"}, recursive);
@@ -49,7 +49,7 @@ public class IOHandler {
     public static Iterator<File> getCopiedFiles(
             @NotNull String idn,
             @NotNull String odn,
-            @NotNull boolean recursive)
+            boolean recursive)
             throws IOException, FileNameDuplicateException {
         File dirI = new File(idn);
         File dirO = new File(odn);

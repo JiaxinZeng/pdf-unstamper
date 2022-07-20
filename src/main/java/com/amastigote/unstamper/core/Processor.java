@@ -8,7 +8,7 @@
 package com.amastigote.unstamper.core;
 
 import com.amastigote.unstamper.log.GeneralLogger;
-import com.sun.istack.internal.NotNull;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSName;
@@ -22,6 +22,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.text.PDFMarkedContentExtractor;
 import org.apache.pdfbox.text.TextPosition;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +45,8 @@ public class Processor {
     public static void process(
             @NotNull File file,
             @NotNull String[] strings,
-            @NotNull boolean useStrict,
-            @NotNull boolean removeAnnotations) {
+            boolean useStrict,
+            boolean removeAnnotations) {
         GeneralLogger.Processor.procInProgress(file.getName());
 
         try {
@@ -54,7 +55,7 @@ public class Processor {
                 return;
             }
 
-            PDDocument pdDocument = PDDocument.load(file);
+            PDDocument pdDocument = Loader.loadPDF(file);
 
             pdDocument.getPages().forEach(pdPage -> {
                 try {
@@ -62,7 +63,6 @@ public class Processor {
 
                     /* >> loading font resources from current page */
                     PDFStreamParser pdfStreamParser = new PDFStreamParser(pdPage);
-                    pdfStreamParser.parse();
 
                     Set<PDFont> pdFonts = new HashSet<>();
 
@@ -96,7 +96,7 @@ public class Processor {
                                     .map(e -> ((TextPosition) e).getUnicode())
                                     .collect(Collectors.joining()))
                             .map(s -> TextStampRecognizer.recognizePlain(strings, s.getBytes(), useStrict))
-                            .collect(Collectors.toList());
+                            .toList();
 
                     needRewrite = markedContentMatchRecords.contains(true);
                     /* << pre-check marked contents and remember orders */
@@ -105,14 +105,13 @@ public class Processor {
                     boolean mcRemovingFlag = false;
 
                     /* handle both string array and string */
-                    List<Object> objects = pdfStreamParser.getTokens();
+                    List<Object> objects = pdfStreamParser.parse();
                     Object object, prevObject;
                     for (int i = 0; i < objects.size(); i++) {
                         object = objects.get(i);
 
                         /* >> mark marked content */
-                        if (object instanceof Operator) {
-                            Operator op = (Operator) object;
+                        if (object instanceof Operator op) {
                             if (BEGIN_MARKED_CONTENT_WITH_PROPERTY.equals(op.getName())) {
                                 ++mcCount;
                                 mcRemovingFlag = markedContentMatchRecords.get(mcCount);
@@ -128,9 +127,8 @@ public class Processor {
                         }
                         /* << mark marked content */
 
-                        if (object instanceof Operator) {
-                            Operator op = (Operator) object;
-                            String testStr;
+                        if (object instanceof Operator op) {
+                            byte[] testBytes;
                             boolean isArray = false;
 
                             if (SHOW_TEXT.equals(op.getName()) || (SHOW_TEXT_ADJUSTED.equals(op.getName()))) {
@@ -139,9 +137,8 @@ public class Processor {
                                 }
 
                                 prevObject = objects.get(i - 1);
-                                if (prevObject instanceof COSArray) {
+                                if (prevObject instanceof COSArray array) {
                                     isArray = true;
-                                    COSArray array = (COSArray) prevObject;
                                     StringBuilder builder = new StringBuilder();
 
                                     for (int j = 0; j < array.size(); j++) {
@@ -150,15 +147,15 @@ public class Processor {
                                         }
                                         builder.append(array.getString(j));
                                     }
-                                    testStr = builder.toString();
+                                    testBytes = builder.toString().getBytes();
                                 } else if (prevObject instanceof COSString) {
-                                    testStr = ((COSString) prevObject).toString();
+                                    testBytes = ((COSString) prevObject).getBytes();
                                 } else {
                                     continue;
                                 }
 
                                 try {
-                                    if (TextStampRecognizer.recognize(strings, testStr.getBytes(), pdFonts, useStrict)) {
+                                    if (TextStampRecognizer.recognize(strings, testBytes, pdFonts, useStrict)) {
                                         if (isArray) {
                                             ((COSArray) prevObject).clear();
                                         } else {

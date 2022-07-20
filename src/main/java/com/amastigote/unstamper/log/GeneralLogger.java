@@ -8,7 +8,7 @@
 package com.amastigote.unstamper.log;
 
 import com.amastigote.unstamper.Main;
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 public class GeneralLogger {
     public static class Help {
@@ -36,19 +36,19 @@ public class GeneralLogger {
         private static final String suffix = "[File] ";
 
         public static void nameDuplicate(@NotNull String fn) {
-            System.err.println(suffix + "Input file/dir \'" + fn + "\' has the same name as output file/dir, skipping");
+            System.err.println(suffix + "Input file/dir '" + fn + "' has the same name as output file/dir, skipping");
         }
 
         public static void notExist(@NotNull String fn) {
-            System.err.println(suffix + "File/dir \'" + fn + "\' not exist or is not a file/dir, skipping");
+            System.err.println(suffix + "File/dir '" + fn + "' not exist or is not a file/dir, skipping");
         }
 
         public static void error(@NotNull String fn) {
-            System.err.println(suffix + "Error when generating stub file/dir for \'" + fn + "\', skipping");
+            System.err.println(suffix + "Error when generating stub file/dir for '" + fn + "', skipping");
         }
 
         public static void notWritable(@NotNull String fn) {
-            System.err.println(suffix + "File \'" + fn + "\' not writable, skipping");
+            System.err.println(suffix + "File '" + fn + "' not writable, skipping");
         }
     }
 
@@ -56,15 +56,15 @@ public class GeneralLogger {
         private static final String suffix = "[Processor] ";
 
         public static void errorLoadPdf(@NotNull String fn) {
-            System.err.println(suffix + "Error loading file \'" + fn + "\' as PDF, skipping");
+            System.err.println(suffix + "Error loading file '" + fn + "' as PDF, skipping");
         }
 
         public static void errorProcess(@NotNull String fn) {
-            System.err.println(suffix + "Error processing certain page of \'" + fn + "\', skipping");
+            System.err.println(suffix + "Error processing certain page of '" + fn + "', skipping");
         }
 
         public static void procInProgress(@NotNull String fn) {
-            System.out.println(suffix + "Processing PDF file \'" + fn + "\' ...");
+            System.out.println(suffix + "Processing PDF file '" + fn + "' ...");
         }
     }
 }

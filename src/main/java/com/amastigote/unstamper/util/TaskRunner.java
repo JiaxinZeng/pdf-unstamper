@@ -10,8 +10,8 @@ package com.amastigote.unstamper.util;
 import com.amastigote.unstamper.core.Processor;
 import com.amastigote.unstamper.io.IOHandler;
 import com.amastigote.unstamper.log.GeneralLogger;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,8 +25,8 @@ public class TaskRunner {
 
     public static void init(
             @NotNull String[] keywords,
-            @NotNull boolean useStrict,
-            @NotNull boolean removeAnnotations) {
+            boolean useStrict,
+            boolean removeAnnotations) {
         TaskRunner.keywords = keywords;
         TaskRunner.useStrict = useStrict;
         TaskRunner.removeAnnotations = removeAnnotations;
@@ -65,7 +65,7 @@ public class TaskRunner {
     public static void procMassFiles(
             @NotNull String idn,
             @NotNull String odn,
-            @NotNull boolean recursively) {
+            boolean recursively) {
         Iterator<File> fileIterator = null;
         try {
             fileIterator = IOHandler.getCopiedFiles(idn, odn, recursively);
@@ -79,7 +79,7 @@ public class TaskRunner {
 
     public static void procMassFilesDirectly(
             @NotNull String idn,
-            @NotNull boolean recursively) {
+            boolean recursively) {
         Iterator<File> fileIterator = IOHandler.getFiles(idn, recursively);
         procIterator(fileIterator, idn);
     }
